@@ -12,7 +12,7 @@ set (Tutorial_VERSION_MINOR 1)
 
 # It's pretty safe and provide big speedup for our packet processor and patricia code
 set(CMAKE_C_FLAGS "-O2")
-set(CMAKE_CXX_FLAGS "-O2")
+set(CMAKE_CXX_FLAGS "-O2 -lhiredis")
 
 set(FASTNETMON_PROFILER OFF)
 
@@ -34,6 +34,10 @@ if (NOT DISABLE_PF_RING_SUPPORT)
     endif() 
 endif()
 
+if (NOT DISABLE_REDIS_SUPPORT)
+    set(ENABLE_REDIS_SUPPORT ON)
+endif()
+
 if (ENABLE_PFRING_SUPPORT)
     # Set path to home compiled PF_RING
     set(PFRING_INCLUDE_DIRS /opt/pf_ring/include)
@@ -53,6 +57,15 @@ endif()
 
 # If you need hardware locking features
 # add_definitions(-DHWFILTER_LOCKING)
+
+# redis support
+if (ENABLE_REDIS_SUPPORT)
+    set(REDIS_INCLUDE_DIRS /usr/include/hiredis/)
+    set(REDIS_LIBRARIES /usr/lib/x86_64-linux-gnu/libhiredis.so)
+    add_definitions(-DREDIS)
+
+    include_directories(${REDIS_INCLUDE_DIRS})
+endif()
 
 # Our LPM library
 add_library(patricia STATIC libpatricia/patricia.c)
